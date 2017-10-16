@@ -1,0 +1,162 @@
+#!/usr/bin/env python3
+
+import collections
+import os
+import sys
+import unicodedata
+
+from PyQt5 import QtCore, QtGui, QtWidgets
+
+
+File = collections.namedtuple('File', ['path', 'name'])
+
+# From: http://stackoverflow.com/questions/517923/
+def strip_accents(s):
+    return ''.join(c for c in unicodedata.normalize('NFD', s)
+                   if unicodedata.category(c) != 'Mn')
+
+
+class Database:
+    def __init__(self, config_file):
+        self.places = self.readConfig(config_file)
+
+    def readConfig(self, config_file):
+        places = []
+        with open(config_file) as f:
+            for line in f:
+                line = line.strip()
+                if line != '' and not line.startswith('#'):
+                    places.append(line)
+        return places
+
+    def update(self):
+        self.files = []
+        for p in self.places:
+            ls_output = os.popen(f'bash -c "ls {p} 2>/dev/null"').read()
+            for f in ls_output.split('\n'):
+                if f.strip() != '':
+                    base = os.path.basename(f)
+                    f = File(path=f, name=os.path.splitext(base)[0])
+                    self.files.append(f)
+
+    def _doesMatch(self, filters, name):
+        name = strip_accents(name).lower()
+        return all(strip_accents(f).lower() in name for f in filters.split(' '))
+
+    def query(self, filt=None):
+        if not filt:
+            return self.files
+        q = []
+        for f in self.files:
+            if self._doesMatch(filt, f.name):
+                q.append(f)
+        return q
+
+
+class MainWindow(QtWidgets.QMainWindow):
+    def __init__(self, parent=None):
+        super().__init__(parent)
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle('Document Finder')
+        self.setWindowIcon(QtGui.QIcon.fromTheme('find'))
+
+        self.resize(540, 222)
+        self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
+
+        self.database = Database(os.path.join(os.path.expanduser('~'),
+                                 '.config/dof/dof.cfg'))
+        self.database.update()
+
+        self.dof_widget = MainWidget(self.database, parent=self)
+        self.setCentralWidget(self.dof_widget)
+
+    def keyPressEvent(self, event):
+        if event.key() == QtCore.Qt.Key_Escape:
+            self.close()
+        elif event.key() == QtCore.Qt.Key_Return:
+            self.dof_widget.openSelectedFile()
+        elif event.key() == QtCore.Qt.Key_Down:
+            self.dof_widget.list_.setFocus()
+            n = min(self.dof_widget.list_.currentRow() + 1,
+                    self.dof_widget.list_.count() - 1)
+            self.dof_widget.list_.setCurrentRow(n)
+        elif event.key() == QtCore.Qt.Key_Up:
+            self.dof_widget.text.setFocus()
+        elif event.key() == QtCore.Qt.Key_F5:
+            self.database.update()
+            self.dof_widget.updateUI()
+            self.dof_widget.text.setFocus(True)
+
+
+class MainWidget(QtWidgets.QWidget):
+    def __init__(self, database, parent=None):
+        super().__init__(parent)
+        self.database = database
+
+        self.initUI()
+        self.updateUI()
+
+    def initUI(self):
+        self.text = QtWidgets.QLineEdit()
+        self.text.textChanged.connect(self.updateUI)
+
+        self.list_ = QtWidgets.QListWidget()
+        self.list_.setIconSize(QtCore.QSize(16, 16))
+        self.list_.itemDoubleClicked.connect(self.openSelectedFile)
+        self.list_.setTextElideMode(QtCore.Qt.ElideMiddle)
+        self.list_.setHorizontalScrollBarPolicy(QtCore.Qt.ScrollBarAlwaysOff)
+
+        self.icon = QtWidgets.QLabel()
+        self.icon.setPixmap(QtGui.QIcon.fromTheme('find').pixmap(48, 48))
+
+        self.button_close = QtWidgets.QPushButton('Close')
+        self.button_close.setIcon(QtGui.QIcon.fromTheme('gtk-close'))
+        self.button_close.clicked.connect(self.parent().close)
+
+        self.button_open = QtWidgets.QPushButton('Open')
+        self.button_open.setIcon(QtGui.QIcon.fromTheme('gtk-open'))
+        self.button_open.clicked.connect(self.openSelectedFile)
+
+        layout_buttons = QtWidgets.QHBoxLayout()
+        layout_buttons.addStretch(1)
+        layout_buttons.addWidget(self.button_close)
+        layout_buttons.addWidget(self.button_open)
+
+        layout = QtWidgets.QGridLayout()
+        layout.addWidget(self.icon, 0, 0, 1, 1)
+        layout.addWidget(self.text, 0, 1, 1, 1)
+        layout.addWidget(self.list_, 2, 0, 1, 2)
+        layout.addLayout(layout_buttons, 3, 0, 1, 2)
+
+        self.setLayout(layout)
+
+    def updateUI(self):
+        self.list_.clear()
+        filt = self.text.text().strip()
+        if len(filt) >= 2:
+            self.filtered_list = self.database.query(filt)
+            for f in self.filtered_list:
+                icon = QtWidgets.QFileIconProvider().icon(QtCore.QFileInfo(f.path))
+                item = QtWidgets.QListWidgetItem(icon, f.name)
+                item.setToolTip(f.name)
+                self.list_.addItem(item)
+        self.list_.setCurrentRow(0)
+        self.button_open.setEnabled(len(self.list_.selectedItems()) > 0)
+
+    def openSelectedFile(self):
+        idx = self.list_.currentRow()
+        if idx >= 0:
+            f = self.filtered_list[idx]
+            os.system(f'xdg-open "{f.path}"')
+            self.parent().close()
+
+
+if __name__ == '__main__':
+    app = QtWidgets.QApplication(sys.argv)
+
+    main = MainWindow()
+    main.show()
+
+    sys.exit(app.exec_())
