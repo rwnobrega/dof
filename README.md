@@ -7,7 +7,7 @@ Currently Linux only.
 
 ## Configuration
 
-dof calls `ls` on each line in the file `.config/dof/dof.cfg`. It ignores lines starting with `#`. Example:
+dof calls `ls` on each line of the file `.config/dof/dof.cfg`. It ignores lines starting with `#`. Example:
 
 ```
 # dof configuration file
