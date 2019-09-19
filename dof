@@ -32,7 +32,7 @@ class Database:
     def update(self):
         self.files = []
         for p in self.places:
-            ls_output = os.popen(f'bash -c "ls {p} 2>/dev/null"').read()
+            ls_output = os.popen('bash -c "ls {} 2>/dev/null"'.format(p)).read()
             for f in ls_output.split('\n'):
                 if f.strip() != '':
                     base = os.path.basename(f)
@@ -149,7 +149,7 @@ class MainWidget(QtWidgets.QWidget):
         idx = self.list_.currentRow()
         if idx >= 0:
             f = self.filtered_list[idx]
-            os.system(f'xdg-open "{f.path}"')
+            os.system('xdg-open "{}"'.format(f.path))
             self.parent().close()
 
 
