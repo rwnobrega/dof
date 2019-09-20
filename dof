@@ -36,8 +36,7 @@ class Database:
             for f in ls_output.split('\n'):
                 if f.strip() != '':
                     base = os.path.basename(f)
-                    f = File(path=f, name=os.path.splitext(base)[0])
-                    self.files.append(f)
+                    self.files.append(File(path=f, name=os.path.splitext(base)[0]))
 
     def _doesMatch(self, filters, name):
         name = strip_accents(name).lower()
@@ -65,8 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.resize(540, 222)
         self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
 
-        self.database = Database(os.path.join(os.path.expanduser('~'),
-                                 '.config/dof/dof.cfg'))
+        self.database = Database(os.path.join(os.path.expanduser('~'), '.config/dof/dof.cfg'))
         self.database.update()
 
         self.dof_widget = MainWidget(self.database, parent=self)
