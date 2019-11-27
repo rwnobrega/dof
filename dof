@@ -57,12 +57,21 @@ class MainWindow(QtWidgets.QMainWindow):
         super().__init__(parent)
         self.initUI()
 
+    def _center_window(self):
+        # https://stackoverflow.com/questions/20243637
+        frame_geometry = self.frameGeometry()
+        screen = QtWidgets.QApplication.desktop().screenNumber(QtWidgets.QApplication.desktop().cursor().pos())
+        center_point = QtWidgets.QApplication.desktop().screenGeometry(screen).center()
+        frame_geometry.moveCenter(center_point)
+        self.move(frame_geometry.topLeft())
+
     def initUI(self):
         self.setWindowTitle('Document Finder')
         self.setWindowIcon(QtGui.QIcon.fromTheme('find'))
 
-        self.resize(540, 222)
         self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
+        self.resize(540, 222)
+        self._center_window()
 
         self.database = Database(os.path.join(os.path.expanduser('~'), '.config/dof/dof.cfg'))
         self.database.update()
