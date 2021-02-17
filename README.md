@@ -25,4 +25,4 @@ $HOME/Comics/*/*.cbr
 
 ## License
 
-dof is licensed unthe the GPL-3.0.
+dof is licensed under the the GPL-3.0.
