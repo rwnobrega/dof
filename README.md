@@ -9,6 +9,7 @@ Currently Linux only.
 
 ```sh
 git clone https://github.com/rwnobrega/dof.git
+cd dof
 pip install .
 ```
 
@@ -21,3 +22,7 @@ dof calls `ls` on each line of the file `.config/dof/dof.cfg`. It ignores lines 
 $HOME/Biblio/{Books,Papers,Theses}/*.{pdf,djvu}
 $HOME/Comics/*/*.cbr
 ```
+
+## License
+
+dof is licensed unthe the GPL-3.0.
