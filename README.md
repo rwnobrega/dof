@@ -9,7 +9,7 @@ Currently Linux only.
 
 dof calls `ls` on each line of the file `.config/dof/dof.cfg`. It ignores lines starting with `#`. Example:
 
-```
+```conf
 # dof configuration file
 $HOME/Biblio/{Books,Papers,Theses}/*.{pdf,djvu}
 $HOME/Comics/*/*.cbr
