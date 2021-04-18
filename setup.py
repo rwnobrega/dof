@@ -18,6 +18,6 @@ setup(
     },
     packages=find_packages('dof'),
     scripts=['dof/dof'],
-    install_requires=['pyqt5'],
+    install_requires=['pyqt5', 'braceexpand'],
     python_requires='>=3.6',
 )
