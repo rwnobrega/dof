@@ -15,12 +15,12 @@ pip install .
 
 ## Configuration
 
-dof calls `ls` on each line of the file `.config/dof/dof.cfg`. It ignores lines starting with `#`. Example:
+dof applies glob and brace expansion on each line of the file `.config/dof/dof.cfg`. It ignores lines starting with `#`. Example:
 
 ```conf
 # dof configuration file
 $HOME/Biblio/{Books,Papers,Theses}/*.{pdf,djvu}
-$HOME/Comics/*/*.cbr
+$HOME/Comics/**/*.cbr
 ```
 
 ## License
