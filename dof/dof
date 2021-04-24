@@ -43,14 +43,8 @@ class Database:
         name = strip_accents(name).lower()
         return all(strip_accents(f).lower() in name for f in filters.split(' '))
 
-    def query(self, filt=None):
-        if not filt:
-            return self.files
-        q = []
-        for f in self.files:
-            if self._doesMatch(filt, f.name):
-                q.append(f)
-        return q
+    def query(self, filt):
+        return [f for f in self.files if self._doesMatch(filt, f.name)]
 
 
 class MainWindow(QtWidgets.QMainWindow):
