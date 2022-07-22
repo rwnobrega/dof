@@ -142,7 +142,7 @@ class MainWidget(QtWidgets.QWidget):
             for f in self.filtered_list:
                 icon = QtWidgets.QFileIconProvider().icon(QtCore.QFileInfo(f.path))
                 item = QtWidgets.QListWidgetItem(icon, f.name)
-                item.setToolTip(f.name)
+                item.setToolTip(f.path)
                 self.list_.addItem(item)
         self.list_.setCurrentRow(0)
         self.button_open.setEnabled(len(self.list_.selectedItems()) > 0)
