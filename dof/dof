@@ -64,7 +64,7 @@ class MainWindow(QtWidgets.QMainWindow):
         self.setWindowTitle('Document Finder')
         self.setWindowIcon(QtGui.QIcon.fromTheme('find'))
 
-        self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint)
+        self.setWindowFlags(QtCore.Qt.WindowCloseButtonHint | QtCore.Qt.WindowMaximizeButtonHint)
         self.resize(540, 222)
         self._center_window()
 
