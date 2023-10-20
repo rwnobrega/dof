@@ -44,8 +44,8 @@ class Database:
         name = strip_accents(name).lower()
         return all(strip_accents(f).lower() in name for f in filters.split(" "))
 
-    def query(self, filt):
-        return [f for f in self.files if self._doesMatch(filt, f.name)]
+    def query(self, filter):
+        return [f for f in self.files if self._doesMatch(filter, f.name)]
 
 
 class MainWindow(QtWidgets.QMainWindow):
@@ -145,9 +145,9 @@ class MainWidget(QtWidgets.QWidget):
 
     def updateUI(self):
         self.list_.clear()
-        filt = self.text.text().strip()
-        if len(filt) >= 2:
-            self.filtered_list = self.database.query(filt)
+        filter = self.text.text().strip()
+        if len(filter) >= 2:
+            self.filtered_list = self.database.query(filter)
             for f in self.filtered_list:
                 icon = QtWidgets.QFileIconProvider().icon(QtCore.QFileInfo(f.path))
                 item = QtWidgets.QListWidgetItem(icon, f.name)
