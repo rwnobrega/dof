@@ -34,11 +34,17 @@ class Database:
 
     def update(self):
         self.files = []
-        for line in self.places:
-            for place in braceexpand.braceexpand(line):
-                for f in glob.glob(os.path.expandvars(place), recursive=True):
-                    base = os.path.basename(f)
-                    self.files.append(File(path=f, name=os.path.splitext(base)[0]))
+
+        all_places = sorted(
+            os.path.expandvars(place)
+            for line in self.places
+            for place in braceexpand.braceexpand(line)
+        )
+
+        for place in all_places:
+            for f in sorted(glob.glob(os.path.expandvars(place), recursive=True)):
+                base = os.path.basename(f)
+                self.files.append(File(path=f, name=os.path.splitext(base)[0]))
 
     def _doesMatch(self, filters, name):
         name = strip_accents(name).lower()
